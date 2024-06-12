@@ -28,6 +28,7 @@ type application struct {
 	errorLog       *log.Logger
 	infoLog        *log.Logger
 	snippets       *models.SnippetModel
+	users          *models.UserModel
 	templateCache  map[string]*template.Template
 	formDecoder    *form.Decoder
 	sessionManager *scs.SessionManager
@@ -60,26 +61,20 @@ func main() {
 	sessionManager := scs.New()
 	sessionManager.Store = mysqlstore.New(db)
 	sessionManager.Lifetime = 12 * time.Hour
-	// Make sure that the Secure attribute is set on our session cookies.
-	// Setting this means that the cookie will only be sent by a user's web
-	// browser when a HTTPS connection is being used (and won't be sent over an
-	// unsecure HTTP connection).
 	sessionManager.Cookie.Secure = true
 
-	// And add it to the application dependencies.
+	// Initialize a models.UserModel instance and add it to the application
+	// dependencies.
 	app := &application{
 		errorLog:       errorLog,
 		infoLog:        infoLog,
 		snippets:       &models.SnippetModel{DB: db},
+		users:          &models.UserModel{DB: db},
 		templateCache:  templateCache,
 		formDecoder:    formDecoder,
 		sessionManager: sessionManager,
 	}
 
-	// Initialize a tls.Config struct to hold the non-default TLS settings we
-	// want the server to use. In this case the only thing that we're changing
-	// is the curve preferences value, so that only elliptic curves with
-	// assembly implementations are used.
 	tlsConfig := &tls.Config{
 		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
 	}
