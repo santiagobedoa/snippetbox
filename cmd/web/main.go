@@ -25,6 +25,7 @@ import (
 
 // Add a templateCache field to the application struct.
 type application struct {
+	debug          bool
 	errorLog       *log.Logger
 	infoLog        *log.Logger
 	snippets       models.SnippetModelInterface
@@ -37,6 +38,7 @@ type application struct {
 func main() {
 	addr := flag.String("addr", ":4000", "HTTP network address")
 	dsn := flag.String("dsn", "web:Yul21894@/snippetbox?parseTime=true", "MySQL data source name")
+	debug := flag.Bool("debug", false, "Enable debug mode")
 
 	flag.Parse()
 
@@ -66,6 +68,7 @@ func main() {
 	// Initialize a models.UserModel instance and add it to the application
 	// dependencies.
 	app := &application{
+		debug:          *debug,
 		errorLog:       errorLog,
 		infoLog:        infoLog,
 		snippets:       &models.SnippetModel{DB: db},
